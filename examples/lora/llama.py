@@ -59,15 +59,7 @@ class LLaMa:
     tokenizer = MODEL_PARAMS['tokenizer'](model_file=str(tokenizer_path))
     assert tokenizer.vocab_size() == params["args"]["vocab_size"], f"{tokenizer.vocab_size()=} not equal to {params['args']['vocab_size']}"
 
-    if quantize == "int8":
-      from llama3 import Int8Linear
-      linear = Int8Linear
-    elif quantize == "nf4":
-      from llama3 import NF4Linear
-      linear = NF4Linear(64)
-    else:
-      linear = nn.Linear
-
+    linear = nn.Linear
     model = Transformer(**params["args"], linear=linear, max_context=MAX_CONTEXT, jit=bool(JIT))
 
     with WallTimeEvent(BenchEvent.LOAD_WEIGHTS):
@@ -124,7 +116,7 @@ if __name__ == "__main__":
   parser.add_argument("--profile", action="store_true", help="Output profile data to out.prof")
   parser.add_argument("--size", type=str, default=None, help=f"""Size of model to use {list(MODEL_PARAMS.keys())}""")
   parser.add_argument("--quantize", type=str, default=None, help="Quantize the weights to int8 or nf4 in memory")
-  parser.add_argument("--model", type=Path, default=None, help="Folder with the original weights to load, or single .index.json, .safetensors or .bin file")
+  parser.add_argument("--model", type=Path, default=None, required=True, help="Folder with the original weights to load, or single .index.json, .safetensors or .bin file")
   parser.add_argument("--shard", type=int, default=1, help="number of devices to load the weights to")
 
   args = parser.parse_args()
@@ -132,7 +124,7 @@ if __name__ == "__main__":
   if args.size not in MODEL_PARAMS: raise ValueError(f"Invalid model size: {args.size}")
   chatbot = args.prompt == None
 
-  MODEL_PATH = args.model or Path(__file__).parents[1] / f"weights/LLaMA-2/{args.size}"
+  MODEL_PATH = args.model or Path(__file__).parents[2] / f"weights/LLaMA-2/{args.size}"
   TOKENIZER_PATH = (MODEL_PATH if MODEL_PATH.is_dir() else MODEL_PATH.parent) / "tokenizer.model"
 
   print(f"using LLaMA-2-{args.size} model")
