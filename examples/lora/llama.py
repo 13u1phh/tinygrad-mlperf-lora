@@ -116,7 +116,7 @@ if __name__ == "__main__":
   parser.add_argument("--profile", action="store_true", help="Output profile data to out.prof")
   parser.add_argument("--size", type=str, default=None, help=f"""Size of model to use {list(MODEL_PARAMS.keys())}""")
   parser.add_argument("--quantize", type=str, default=None, help="Quantize the weights to int8 or nf4 in memory")
-  parser.add_argument("--model", type=Path, default=None, required=True, help="Folder with the original weights to load, or single .index.json, .safetensors or .bin file")
+  parser.add_argument("--model", type=Path, default=None, help="Folder with the original weights to load, or single .index.json, .safetensors or .bin file")
   parser.add_argument("--shard", type=int, default=1, help="number of devices to load the weights to")
 
   args = parser.parse_args()
